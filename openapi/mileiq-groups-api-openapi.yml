@@ -1,0 +1,681 @@
+openapi: 3.1.0
+info:
+  title: MileIQ External groups API
+  description: External API for integrating with the MileIQ Platform.
+  termsOfService: https://mileiq.com/terms
+  contact:
+    name: MileIQ
+    url: https://developer.mileiq.com/
+    email: support@mileiq.com
+  version: 1.4.0
+servers:
+- url: https://external-api.mileiq.com
+  description: MileIQ External API
+tags:
+- name: groups
+paths:
+  /v1/groups:
+    get:
+      tags:
+      - groups
+      summary: Get Groups
+      description: Retrieve all groups (teams) that the authenticated user has administrative access to. Only returns groups where the user is designated as an administrator.
+      operationId: get_groups
+      parameters:
+      - name: Authorization
+        in: header
+        required: false
+        schema:
+          type: string
+          title: Authorization
+      responses:
+        '200':
+          description: Successfully retrieved list of accessible groups. Returns an array of group objects with their details including members, metadata, and display information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupListResponse'
+        '401':
+          description: Authentication failed. Invalid or missing authorization token.
+        '403':
+          description: Insufficient permissions. User does not have the required 'groups_read' scope or is not authenticated.
+        '429':
+          description: Rate limit exceeded. Maximum 30 requests per minute allowed.
+        '500':
+          description: Internal server error. An unexpected error occurred while processing the request.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/groups/{group_id}:
+    get:
+      tags:
+      - groups
+      summary: Get Group by ID
+      description: Retrieve detailed information for a specific group by its unique identifier. The authenticated user must be an administrator of the requested group to access its data.
+      operationId: get_group
+      parameters:
+      - name: group_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Group Id
+      - name: Authorization
+        in: header
+        required: false
+        schema:
+          type: string
+          title: Authorization
+      responses:
+        '200':
+          description: Successfully retrieved group information. Returns detailed group data including members, roles, metadata, and display information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupListResponse'
+        '401':
+          description: Authentication failed. Invalid or missing authorization token.
+        '403':
+          description: Insufficient permissions. User does not have the required 'groups_read' scope, is not authenticated, or is not an administrator of the requested group.
+        '404':
+          description: Group not found. The specified group ID does not exist or is not accessible to the user.
+        '422':
+          description: Validation error. Invalid group ID format provided.
+        '429':
+          description: Rate limit exceeded. Maximum 30 requests per minute allowed.
+        '500':
+          description: Internal server error. An unexpected error occurred while processing the request.
+  /v1/groups/{group_id}/reported-drives:
+    get:
+      tags:
+      - groups
+      summary: Get Group Reported Drives
+      description: 'Retrieve a paginated list of reported drives for a specific group, ordered by last modification date (most recent first). This endpoint returns drives that have been submitted for review by group members. Note: The ''created'' field represents when the drive was reported to the system, while ''started_at'' and ''ended_at'' indicate the actual drive times. Supports filtering by date ranges and includes comprehensive drive details, driver information, and review status.'
+      operationId: get_group_reported_drives
+      parameters:
+      - name: group_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Group Id
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 1000
+          exclusiveMinimum: 0
+          description: The number of drives to retrieve
+          default: 100
+          title: Limit
+        description: The number of drives to retrieve
+        example: '50'
+      - name: date_before
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          description: The end date of the range to retrieve drives for based on the defined filter_by param (exclusive). Filter_by needs to be set for this field to be used. Should be in UTC
+          title: Date Before
+        description: The end date of the range to retrieve drives for based on the defined filter_by param (exclusive). Filter_by needs to be set for this field to be used. Should be in UTC
+        example: '2024-05-05T16:01:07Z'
+      - name: date_after
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          description: The start date of the range to retrieve drives for based on the defined filter_by param (exclusive). Filter_by needs to be set for this field to be used. Should be in UTC
+          title: Date After
+        description: The start date of the range to retrieve drives for based on the defined filter_by param (exclusive). Filter_by needs to be set for this field to be used. Should be in UTC
+        example: '2024-05-05T16:01:07Z'
+      - name: filter_by
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/GetDrivesRequestFilterBy'
+          - type: 'null'
+          description: Use 'ended' to filter by the date the drive has ended. Use 'modified' to filter by the date the drive was last updated
+          title: Filter By
+        description: Use 'ended' to filter by the date the drive has ended. Use 'modified' to filter by the date the drive was last updated
+      - name: modified_before
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          description: The end date of the range to retrieve drives for (exclusive). If the drive was reviewed by an admin, this will be the last review date. If not, this will be the same as the date it was reported. [DEPRECATED] Use [date_before, date_after] + filter_by instead
+          title: Modified Before
+        description: The end date of the range to retrieve drives for (exclusive). If the drive was reviewed by an admin, this will be the last review date. If not, this will be the same as the date it was reported. [DEPRECATED] Use [date_before, date_after] + filter_by instead
+        example: '2024-05-12T16:01:07Z'
+      - name: modified_after
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          description: The start date of the range to retrieve drives for (exclusive). If the drive was reviewed by an admin, this will be the last review date. If not, this will be the same as the date it was reported. [DEPRECATED] Use [date_before, date_after] + filter_by instead
+          title: Modified After
+        description: The start date of the range to retrieve drives for (exclusive). If the drive was reviewed by an admin, this will be the last review date. If not, this will be the same as the date it was reported. [DEPRECATED] Use [date_before, date_after] + filter_by instead
+        example: '2024-05-05T16:01:07Z'
+      - name: Authorization
+        in: header
+        required: false
+        schema:
+          type: string
+          title: Authorization
+      responses:
+        '200':
+          description: Successfully retrieved group reported drives. Returns paginated list of drives with complete details including driver info, locations, expenses, and review comments.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetReportedDrivesResponse'
+        '400':
+          description: Bad request. Invalid query parameters such as limit exceeding maximum allowed value or invalid date format.
+        '401':
+          description: Authentication failed. Invalid or missing authorization token.
+        '403':
+          description: Insufficient permissions. User does not have the required 'groups_read_reported_drives' scope, is not authenticated, or is not an administrator of the requested group.
+        '404':
+          description: Group not found. The specified group ID does not exist or is not accessible to the user.
+        '422':
+          description: Validation error. Invalid group ID format or malformed query parameters.
+        '429':
+          description: Rate limit exceeded. Maximum 60 requests per minute allowed.
+        '500':
+          description: Internal server error. An unexpected error occurred while processing the request.
+components:
+  schemas:
+    Address:
+      properties:
+        country:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Country
+          description: Country name or code where the location is situated
+        state:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: State
+          description: State, province, or administrative region within the country
+        city:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: City
+          description: City or municipality name
+        street:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Street
+          description: Street address including number and street name
+        postal_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Postal Code
+          description: Postal or ZIP code for the location
+      type: object
+      title: Address
+      description: Geographical address information for drive locations with standardized components
+    Geolocation:
+      properties:
+        name:
+          type: string
+          title: Name
+          description: The name of the location
+        lat:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Lat
+          description: The latitude of the location
+        lon:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Lon
+          description: The longitude of the location
+        time:
+          type: string
+          format: date-time
+          title: Time
+          description: The time in ISO 8601 format
+        address:
+          anyOf:
+          - $ref: '#/components/schemas/Address'
+          - type: 'null'
+          description: The address of the location
+      type: object
+      required:
+      - name
+      - time
+      title: Geolocation
+      description: Represent the geolocation information of a drive
+    Currency:
+      type: string
+      enum:
+      - USD
+      - CAD
+      - GBP
+      title: Currency
+      description: Different currencies used for drives
+    Driver:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: Driver parse ID
+        name:
+          type: string
+          title: Name
+          description: Driver's full name
+        email:
+          type: string
+          title: Email
+          description: Driver's email address
+        status:
+          type: string
+          title: Status
+          description: Whether the driver is active
+        timezone_offset:
+          type: number
+          title: Timezone Offset
+          description: Timezone offset for the user
+      type: object
+      required:
+      - id
+      - name
+      - email
+      - status
+      - timezone_offset
+      title: Driver
+      description: Represent a driver information
+    Meta:
+      properties:
+        resourceType:
+          type: string
+          title: Resourcetype
+          description: Type of resource (user/group) - identifies the kind of entity this metadata belongs to
+        created:
+          type: string
+          format: date-time
+          title: Created
+          description: Timestamp when the resource was originally created, in ISO 8601 format
+        lastModified:
+          type: string
+          format: date-time
+          title: Lastmodified
+          description: Timestamp when the resource was last updated or modified, in ISO 8601 format
+        location:
+          type: string
+          title: Location
+          description: Canonical URL where this resource can be accessed via the API
+      type: object
+      required:
+      - resourceType
+      - created
+      - lastModified
+      - location
+      title: Meta
+      description: Generic metadata providing audit trail and resource identification information
+    DriveDetails:
+      properties:
+        distance:
+          anyOf:
+          - $ref: '#/components/schemas/Distance'
+          - $ref: '#/components/schemas/DistanceWithDiscount'
+          - type: 'null'
+          title: Distance
+          description: The distance of the drive
+        value:
+          anyOf:
+          - $ref: '#/components/schemas/Value'
+          - type: 'null'
+          description: The value of the drive
+        toll_fees:
+          anyOf:
+          - $ref: '#/components/schemas/Value'
+          - type: 'null'
+          description: The toll fees of the drive
+        parking_fees:
+          anyOf:
+          - $ref: '#/components/schemas/Value'
+          - type: 'null'
+          description: The parking fees of the drive
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+          description: The description of the drive from the driver notes
+        entry:
+          $ref: '#/components/schemas/DriveEntry'
+          description: The entry method of the drive
+        classification:
+          anyOf:
+          - $ref: '#/components/schemas/DriveClassification'
+          - type: 'null'
+          description: The classification of the drive
+        purpose:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Purpose
+          description: The purpose of the drive
+        start:
+          anyOf:
+          - $ref: '#/components/schemas/Geolocation'
+          - type: 'null'
+          description: The start location of the drive
+        end:
+          anyOf:
+          - $ref: '#/components/schemas/Geolocation'
+          - type: 'null'
+          description: The end location of the drive
+      type: object
+      required:
+      - distance
+      - value
+      - toll_fees
+      - parking_fees
+      - description
+      - entry
+      - classification
+      - purpose
+      - start
+      - end
+      title: DriveDetails
+      description: Details of a single drive.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    Value:
+      properties:
+        amount:
+          type: integer
+          title: Amount
+          description: The amount of the value, in the smallest unit of currency
+        currency:
+          $ref: '#/components/schemas/Currency'
+          description: The currency of the value, in ISO 4217 format
+      type: object
+      required:
+      - amount
+      - currency
+      title: Value
+      description: Represent the value of a drive (excluding toll & parking fees)
+    DriveClassification:
+      type: string
+      enum:
+      - business
+      - personal
+      - unclassified
+      title: DriveClassification
+      description: Drive classifications
+    GroupSchema:
+      properties:
+        id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Id
+          description: Unique identifier for the group - used for API operations and internal references
+        display_name:
+          type: string
+          title: Display Name
+          description: User-friendly name of the group as shown throughout the application interface
+        members:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/GroupMember'
+            type: array
+          - type: 'null'
+          title: Members
+          description: List of all members belonging to this group, including their roles and permissions
+        meta:
+          anyOf:
+          - $ref: '#/components/schemas/Meta'
+          - type: 'null'
+          description: Additional metadata about the group including creation time, last modification, and resource location
+      type: object
+      required:
+      - id
+      - display_name
+      title: GroupSchema
+      description: Represents a group (team) entity with complete information about its structure, members, and metadata
+    GroupListResponse:
+      properties:
+        resources:
+          items:
+            $ref: '#/components/schemas/GroupSchema'
+          type: array
+          title: Resources
+          description: Array of group objects containing detailed information about each accessible group, including members, roles, and metadata
+      type: object
+      required:
+      - resources
+      title: GroupListResponse
+      description: Response model containing a collection of groups with their complete information and member details
+    ReportedDriveSchema:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: The ID of the drive
+        driver:
+          anyOf:
+          - $ref: '#/components/schemas/Driver'
+          - type: 'null'
+          description: The driver of the drive
+        details:
+          anyOf:
+          - $ref: '#/components/schemas/DriveDetails'
+          - type: 'null'
+          description: The details of the drive
+        created:
+          type: string
+          format: date-time
+          title: Created
+          description: The time in which the drive was reported. In ISO 8601 format
+        modified:
+          type: string
+          format: date-time
+          title: Modified
+          description: The last time the drive was reviewed.If it was not reviewed, should be the same as created. In ISO 8601 format
+        status:
+          type: string
+          title: Status
+          description: The status of the drive
+        review_comments:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ReviewComment'
+            type: array
+          - type: 'null'
+          title: Review Comments
+          description: The list of review comments on the drive
+      type: object
+      required:
+      - id
+      - driver
+      - details
+      - created
+      - modified
+      - status
+      - review_comments
+      title: ReportedDriveSchema
+      description: Represents a single drive in a report with the drive details and the driver details.
+    DistanceWithDiscount:
+      properties:
+        amount:
+          type: number
+          title: Amount
+          description: The amount of the distance, in the specified units
+        units:
+          $ref: '#/components/schemas/DistanceUnits'
+          description: The units of the distance
+        discounted:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Discounted
+          description: The discounted amount of the distance, in the specified units
+      type: object
+      required:
+      - amount
+      - units
+      title: DistanceWithDiscount
+      description: Represent the distance for a drive, with a discounted value set by the team
+    DriveEntry:
+      type: string
+      enum:
+      - manual
+      - automatic
+      title: DriveEntry
+      description: Whether the drive was entered manually or automatically
+    GroupMember:
+      properties:
+        value:
+          type: string
+          title: Value
+          description: Unique identifier for the group member (typically the user's Parse ID)
+        display:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Display
+          description: Human-readable name of the member as shown in the application interface
+        is_admin:
+          type: boolean
+          title: Is Admin
+          description: Boolean indicating whether this member has administrative privileges for the group
+        is_driver:
+          type: boolean
+          title: Is Driver
+          description: Boolean indicating whether this member is designated as a driver who can submit drives to the group
+      type: object
+      required:
+      - value
+      - display
+      - is_admin
+      - is_driver
+      title: GroupMember
+      description: Represents a member of a group with their role assignments and display information
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    GetDrivesRequestFilterBy:
+      type: string
+      enum:
+      - modified
+      - ended
+      title: GetDrivesRequestFilterBy
+    DistanceUnits:
+      type: string
+      enum:
+      - mi
+      - km
+      title: DistanceUnits
+      description: Different distance units used for drives
+    Distance:
+      properties:
+        amount:
+          type: number
+          title: Amount
+          description: The amount of the distance, in the specified units
+        units:
+          $ref: '#/components/schemas/DistanceUnits'
+          description: The units of the distance
+      type: object
+      required:
+      - amount
+      - units
+      title: Distance
+      description: Represent the distance for a drive
+    GetReportedDrivesResponse:
+      properties:
+        results:
+          items:
+            $ref: '#/components/schemas/ReportedDriveSchema'
+          type: array
+          title: Results
+          description: Array of reported drive objects containing complete drive details, driver information, and review status for group reporting
+        has_more:
+          type: boolean
+          title: Has More
+          description: Pagination indicator - true if additional drives exist beyond the current result set within the specified filters and date range
+      type: object
+      required:
+      - results
+      - has_more
+      title: GetReportedDrivesResponse
+    ReviewComment:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: The ID of the review comment
+        text:
+          type: string
+          title: Text
+          description: The text of the review comment
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+          description: The time in ISO 8601 format
+        user_email:
+          type: string
+          title: User Email
+          description: The email of the user who made the review comment
+      type: object
+      required:
+      - id
+      - text
+      - created_at
+      - user_email
+      title: ReviewComment
+      description: Represent a review comment within a reported drive
