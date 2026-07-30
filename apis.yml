@@ -1,8 +1,14 @@
 aid: mileiq
 name: MileIQ
-description: 'MileIQ is a company surfaced as a portfolio company of crv, trinity-ventures and added to
-  the API Evangelist network as a stub for enrichment. Sector: consumer. This profile is a lead awaiting
-  the enrichment pipeline.'
+description: >-
+  MileIQ is an automatic mileage-tracking service for individuals and teams that logs every
+  drive in the background, classifies each trip as business or personal, and calculates the
+  deductible mileage value for tax and expense reporting. Its read-only OAuth 2.1 External API
+  (external-api.mileiq.com) exposes authenticated user profiles, drive/trip records with start
+  and end geolocation, distance, and monetary value, plus administrator access to group (team)
+  rosters and member-reported drives — letting accounting, expense, and reimbursement platforms
+  sync MileIQ mileage data. Originally built by Mobile Data Labs and later part of Microsoft,
+  MileIQ now operates as an independent product. The API is currently available on a request basis.
 url: https://raw.githubusercontent.com/api-evangelist/mileiq/refs/heads/main/apis.yml
 x-type: company
 x-source: vc-portfolio
@@ -11,18 +17,115 @@ x-backed-by:
 - trinity-ventures
 x-tier: stub
 x-tier-reason: portfolio-lead
+accessModel:
+  pricing: unknown
+  onboarding: self-serve
+  trial: false
+  try_now: false
+  public: false
+  label: Self-serve signup
+  confidence: medium
+  source:
+  - authentication
+  generated: '2026-07-22'
+  method: derived
+image: https://www.mileiq.com/images/mileiq.7b54ead1.svg
 specificationVersion: '0.20'
 created: '2026-07-17'
-modified: '2026-07-17'
+modified: '2026-07-20'
 tags:
 - Company
 - Consumer
-apis: []
+- Mileage Tracking
+- Expense Management
+- Transportation
+- Tax
+- Accounting
+- Location
+- Fleet
+apis:
+- aid: mileiq:mileiq-groups-api
+  name: MileIQ groups API
+  description: The groups API from MileIQ — 3 operation(s) for groups.
+  humanURL: https://developer.mileiq.com/
+  baseURL: https://external-api.mileiq.com
+  tags:
+  - groups
+  properties:
+  - type: OpenAPI
+    url: openapi/mileiq-groups-api-openapi.yml
+- aid: mileiq:mileiq-users-api
+  name: MileIQ users API
+  description: The users API from MileIQ — 3 operation(s) for users.
+  humanURL: https://developer.mileiq.com/
+  baseURL: https://external-api.mileiq.com
+  tags:
+  - users
+  properties:
+  - type: OpenAPI
+    url: openapi/mileiq-users-api-openapi.yml
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
 - FN: APIs.json
   email: info@apis.io
 common:
+- type: DomainSecurity
+  url: security/mileiq-domain-security.yml
 - type: Website
   url: https://www.mileiq.com/
+- type: DeveloperPortal
+  url: https://developer.mileiq.com/
+- type: Documentation
+  url: https://developer.mileiq.com/introduction
+- type: APIReference
+  url: https://developer.mileiq.com/api-reference
+- type: GettingStarted
+  url: https://developer.mileiq.com/api-reference/getting-started
+- type: Blog
+  url: https://mileiq.com/blog
+- type: Support
+  url: https://support.mileiq.com/
+- type: Pricing
+  url: https://www.mileiq.com/pricing
+- type: SignUp
+  url: https://mileiq.com/en-ca/for-business/api
+- type: TermsOfService
+  url: https://mileiq.com/terms
+- type: PrivacyPolicy
+  url: https://mileiq.com/privacy
+- type: Authentication
+  url: authentication/mileiq-authentication.yml
+- type: OAuthScopes
+  url: scopes/mileiq-scopes.yml
+- type: Conventions
+  url: conventions/mileiq-conventions.yml
+- type: ErrorCatalog
+  url: errors/mileiq-problem-types.yml
+- type: RateLimits
+  url: rate-limits/mileiq-rate-limits.yml
+- type: Lifecycle
+  url: lifecycle/mileiq-lifecycle.yml
+- type: ChangeLog
+  url: changelog/mileiq-changelog.yml
+- type: ChangeLog
+  url: https://developer.mileiq.com/api-reference/changelog
+- type: Conformance
+  url: conformance/mileiq-conformance.yml
+- type: DataModel
+  url: data-model/mileiq-data-model.yml
+- type: WellKnown
+  url: well-known/mileiq-well-known.yml
+- type: MCPServer
+  url: mcp/mileiq-mcp.yml
+- type: LLMsTxt
+  url: llms/mileiq-llms.txt
+- type: AgenticAccess
+  url: agentic-access/mileiq-agentic-access.yml
+- type: AgentSkill
+  url: skills/_index.yml
+x-enrichment:
+  date: '2026-07-20'
+  status: enriched
+  artifacts_added: 18
+  pass: local-v1
