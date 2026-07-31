@@ -1,0 +1,38 @@
+generated: '2026-07-20'
+method: searched
+source: https://developer.mileiq.com/api-reference/changelog
+docs: https://developer.mileiq.com/api-reference/changelog
+scheme: semver
+current_version: 2.0.0
+entries:
+  - version: 2.0.0
+    date: '2025-11-11'
+    status: first-public-release
+    breaking: false
+    highlights:
+      - OAuth 2.1 authentication (Authorization Code grant) replaces API-key auth.
+      - 'User endpoints: GET /v1/users/me, GET /v1/users/{user_id}, GET /v1/users/{user_id}/drives.'
+      - 'Group endpoints: GET /v1/groups, GET /v1/groups/{group_id}, GET /v1/groups/{group_id}/reported-drives.'
+      - Drive filtering by modification date.
+      - Business and personal drive classifications.
+  - version: 1.4.0
+    date: '2024-10-10'
+    status: alpha
+    breaking: true
+    highlights:
+      - Added Currency enum (USD, CAD, GBP), DriveClassification enum, DriveEntry enum.
+      - Added purpose field, drive-notes retrieval, and toll_fees to DriveDetails.
+      - Added ReviewComment model and review_comments in the drive response.
+    breaking_changes:
+      - classification now uses the DriveClassification enum.
+      - entry now uses the DriveEntry enum.
+      - currency now uses the Currency enum.
+  - version: 1.0.0
+    date: '2024-09-18'
+    status: initial-alpha
+    breaking: false
+    highlights:
+      - API-key authentication via the Authorization header.
+      - '/v1/drives endpoint with filtering options.'
+      - Core models DriveResponse, Driver, DriveDetails and geolocation for start/end.
+      - Error handling and validation responses.

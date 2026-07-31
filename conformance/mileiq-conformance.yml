@@ -1,0 +1,34 @@
+generated: '2026-07-20'
+method: derived
+source: openapi/mileiq-external-openapi-original.json
+standards:
+  - id: oauth2
+    conforms: true
+    evidence: OAuth 2.1 Authorization Code flow documented; token endpoint at oauth2.mileiq.com.
+  - id: oidc
+    conforms: true
+    evidence: OIDC discovery document served at oauth2.mileiq.com/.well-known/openid-configuration (issuer, userinfo, jwks).
+  - id: pkce
+    conforms: true
+    evidence: Authorization server advertises code_challenge_methods_supported [plain, S256].
+  - id: rfc8414-oauth-metadata
+    conforms: false
+    evidence: /.well-known/oauth-authorization-server returns 404; only the OIDC discovery document is served.
+  - id: rfc9457-problem-details
+    conforms: false
+    evidence: Errors return plain HTTP status codes / FastAPI HTTPValidationError, not application/problem+json.
+  - id: rfc9116-security-txt
+    conforms: false
+    evidence: No /.well-known/security.txt on any host.
+  - id: pagination
+    conforms: true
+    evidence: List operations return has_more and accept limit + date-window filters.
+  - id: idempotency
+    conforms: false
+    evidence: Read-only API; no idempotency-key contract.
+  - id: iso4217-currency
+    conforms: true
+    evidence: Monetary Value objects carry an ISO 4217 currency code (USD/CAD/GBP).
+  - id: iso8601-datetime
+    conforms: true
+    evidence: All timestamps are ISO 8601 UTC.

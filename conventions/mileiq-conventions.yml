@@ -1,0 +1,52 @@
+generated: '2026-07-20'
+method: searched
+source: https://developer.mileiq.com/api-reference/getting-started
+derived_from: openapi/mileiq-external-openapi-original.json
+authentication:
+  style: oauth2-bearer
+  header: 'Authorization: Bearer <access_token>'
+  see: authentication/mileiq-authentication.yml
+idempotency:
+  supported: false
+  note: >-
+    The External API is read-only (GET operations only); there is no state-changing
+    request and no documented idempotency key. Not applicable.
+pagination:
+  style: limit-and-date-window
+  params:
+    - limit           # integer, default 100, max 1000
+    - date_before     # ISO 8601 UTC (exclusive), requires filter_by
+    - date_after      # ISO 8601 UTC (exclusive), requires filter_by
+    - filter_by       # 'ended' | 'modified'
+  response_fields:
+    - results         # array of items
+    - has_more        # boolean; true if more rows exist beyond this window
+  note: >-
+    No opaque cursor/next token. Callers page by narrowing the date window
+    (date_before/date_after + filter_by) and inspecting has_more. modified_before /
+    modified_after are DEPRECATED in favor of date_before/date_after + filter_by.
+versioning:
+  style: uri-path
+  current: v1
+  see: lifecycle/mileiq-lifecycle.yml
+error_envelope:
+  style: fastapi
+  validation: >-
+    422 responses return {detail: [{loc, msg, type}]} (HTTPValidationError). Other 4xx/5xx
+    return standard HTTP status codes with a human-readable description; not RFC 9457.
+  see: errors/mileiq-problem-types.yml
+rate_limit_signaling:
+  headers:
+    - X-RateLimit-Limit
+    - X-RateLimit-Remaining
+    - X-RateLimit-Reset
+    - Retry-After
+  status: 429
+  see: rate-limits/mileiq-rate-limits.yml
+transport:
+  https_only: true
+  note: HTTP is not supported; all requests must use HTTPS.
+data_conventions:
+  timestamps: ISO 8601 (UTC)
+  monetary_values: integer amount in the smallest unit of currency + ISO 4217 currency code
+  distance_units: [mi, km]

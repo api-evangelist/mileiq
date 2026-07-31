@@ -1,0 +1,31 @@
+generated: '2026-07-20'
+method: derived
+status: candidate
+source: openapi/mileiq-external-openapi-original.json
+note: >-
+  No official MileIQ MCP server was found. This is a candidate tool list derived one-to-one
+  from the External API's read operations, suitable for exposing MileIQ mileage/user/group
+  data to agents behind the provider's OAuth 2.1 authorization.
+server:
+  name: mileiq
+  transport: http
+  auth: oauth2 (Authorization Code, Bearer token)
+tools:
+  - name: get_current_user
+    description: Retrieve the authenticated user's profile.
+    source_operation: openapi/mileiq-external-openapi-original.json#get_me
+  - name: get_user
+    description: Retrieve a user's profile by ID (self only).
+    source_operation: openapi/mileiq-external-openapi-original.json#get_user
+  - name: get_user_drives
+    description: List a user's drives with classification and date filters.
+    source_operation: openapi/mileiq-external-openapi-original.json#get_user_drives
+  - name: get_groups
+    description: List groups (teams) the user administers.
+    source_operation: openapi/mileiq-external-openapi-original.json#get_groups
+  - name: get_group
+    description: Retrieve a group by ID.
+    source_operation: openapi/mileiq-external-openapi-original.json#get_group
+  - name: get_group_reported_drives
+    description: List drives reported to a group for review.
+    source_operation: openapi/mileiq-external-openapi-original.json#get_group_reported_drives

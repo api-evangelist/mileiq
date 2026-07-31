@@ -1,0 +1,36 @@
+generated: '2026-07-20'
+method: searched
+source: https://developer.mileiq.com/api-reference/rate-limiting
+docs: https://developer.mileiq.com/api-reference/rate-limiting
+global:
+  limit_count: 60
+  window: minute
+  scope: per-api-key
+  note: >-
+    The rate-limiting page documents a global 60 requests-per-minute limit per API key.
+    Individual operations advertise tighter per-operation ceilings in their 429 responses.
+headers:
+  - X-RateLimit-Limit
+  - X-RateLimit-Remaining
+  - X-RateLimit-Reset
+  - Retry-After
+status_code: 429
+per_operation:
+  - operation: get_me
+    limit_count: 30
+    window: minute
+  - operation: get_user
+    limit_count: 30
+    window: minute
+  - operation: get_user_drives
+    limit_count: 20
+    window: minute
+  - operation: get_groups
+    limit_count: 30
+    window: minute
+  - operation: get_group
+    limit_count: 30
+    window: minute
+  - operation: get_group_reported_drives
+    limit_count: 60
+    window: minute

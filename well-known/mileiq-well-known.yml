@@ -1,0 +1,33 @@
+generated: '2026-07-20'
+method: searched
+source: https://oauth2.mileiq.com/.well-known/openid-configuration
+hosts:
+  - host: https://oauth2.mileiq.com
+    documents:
+      - path: /.well-known/openid-configuration   # OIDC discovery (RFC 8414 / OpenID Connect Discovery)
+        status: 200
+        file: mileiq-openid-configuration.json
+      - path: /.well-known/jwks.json               # JSON Web Key Set
+        status: 200
+        file: mileiq-jwks.json
+      - path: /.well-known/oauth-authorization-server
+        status: 404
+  - host: https://external-api.mileiq.com
+    documents:
+      - path: /.well-known/security.txt
+        status: 403
+      - path: /.well-known/oauth-authorization-server
+        status: 403
+  - host: https://developer.mileiq.com
+    documents:
+      - path: /.well-known/security.txt
+        status: 404
+  - host: https://mileiq.com
+    documents:
+      - path: /.well-known/security.txt
+        status: 404
+notes: >-
+  MileIQ operates a full OpenID Connect authorization server at oauth2.mileiq.com
+  (Ory Hydra-style: authorization_code / implicit / client_credentials / refresh_token
+  grants, PKCE plain+S256, userinfo, revocation, JWKS, front/back-channel logout).
+  No security.txt is published on any host.

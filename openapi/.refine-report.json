@@ -1,0 +1,16 @@
+{
+  "provider": "mileiq",
+  "sources": [
+    "mileiq-groups-api-openapi.yml",
+    "mileiq-users-api-openapi.yml"
+  ],
+  "outputs": [
+    "mileiq-groups-api-openapi.yml",
+    "mileiq-users-api-openapi.yml"
+  ],
+  "archived": [],
+  "errors": [],
+  "warnings": [],
+  "notes": [],
+  "skipped": []
+}

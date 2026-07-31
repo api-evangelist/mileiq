@@ -1,0 +1,48 @@
+generated: '2026-07-20'
+method: searched
+source: https://developer.mileiq.com/api-reference/getting-started.md
+docs: https://developer.mileiq.com/api-reference/getting-started
+oidc_discovery: https://oauth2.mileiq.com/.well-known/openid-configuration
+note: >-
+  The OpenAPI does not declare oauth2 flows or scopes; scopes are documented in the
+  developer portal (the getting-started OAuth example requests "drives:read:all users:read")
+  and enforced via 403 responses whose descriptions name the required scope. The
+  authorization server advertises the OIDC baseline scopes (openid, offline, offline_access).
+schemes:
+  - name: OAuth2
+    source: https://developer.mileiq.com/api-reference/getting-started
+    flows:
+      - flow: authorizationCode
+        authorizationUrl: https://oauth2.mileiq.com/oauth2/auth
+        tokenUrl: https://oauth2.mileiq.com/oauth2/token
+scopes:
+  - scope: users:read
+    description: Read access to user profile information.
+    internal_name: users_read
+    operations: [get_me, get_user]
+    sources: [https://developer.mileiq.com/api-reference/getting-started]
+  - scope: drives:read:all
+    description: Read access to a user's drive (mileage trip) records.
+    operations: [get_user_drives]
+    sources: [https://developer.mileiq.com/api-reference/getting-started]
+  - scope: groups:read
+    description: Read access to groups (teams) the authenticated user administers.
+    internal_name: groups_read
+    operations: [get_groups, get_group]
+    sources: [openapi/mileiq-external-openapi-original.json]
+  - scope: groups:read:reported-drives
+    description: Read access to drives reported to a group for review.
+    internal_name: groups_read_reported_drives
+    operations: [get_group_reported_drives]
+    sources: [openapi/mileiq-external-openapi-original.json]
+  - scope: openid
+    description: OIDC authentication; issue an ID token.
+    flows: [authorizationCode]
+    sources: [https://oauth2.mileiq.com/.well-known/openid-configuration]
+  - scope: offline_access
+    description: Issue a refresh token for offline access.
+    flows: [authorizationCode]
+    sources: [https://oauth2.mileiq.com/.well-known/openid-configuration]
+  - scope: offline
+    description: Legacy alias for offline_access advertised by the authorization server.
+    sources: [https://oauth2.mileiq.com/.well-known/openid-configuration]

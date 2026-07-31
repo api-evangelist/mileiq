@@ -1,0 +1,46 @@
+generated: '2026-07-20'
+method: derived
+source: openapi/mileiq-external-openapi-original.json
+format: http-status
+envelope: >-
+  422 Validation errors use FastAPI's HTTPValidationError shape
+  ({detail: [{loc, msg, type}]}). Other statuses return the HTTP status code with a
+  descriptive message. Not RFC 9457 application/problem+json.
+problems:
+  - status: 400
+    title: Bad Request
+    description: >-
+      Invalid query parameters such as limit exceeding the maximum allowed value,
+      invalid date format, or unsupported classification filter.
+    operations: [get_user_drives, get_group_reported_drives]
+  - status: 401
+    title: Unauthorized
+    description: Authentication failed. Invalid or missing authorization token.
+    operations: [get_me, get_user, get_user_drives, get_groups, get_group, get_group_reported_drives]
+  - status: 403
+    title: Forbidden
+    description: >-
+      Insufficient permissions. The token lacks the required scope (users_read,
+      groups_read, groups_read_reported_drives, or drive read scopes), is not
+      authenticated, or is attempting to access another user's or group's data.
+    operations: [get_me, get_user, get_user_drives, get_groups, get_group, get_group_reported_drives]
+  - status: 404
+    title: Not Found
+    description: The requested user or group does not exist or is not accessible.
+    operations: [get_me, get_user, get_user_drives, get_group, get_group_reported_drives]
+  - status: 422
+    title: Validation Error
+    description: Malformed path/query parameters (e.g. invalid user/group ID format).
+    schema: HTTPValidationError
+    operations: [get_me, get_user, get_user_drives, get_groups, get_group, get_group_reported_drives]
+  - status: 429
+    title: Too Many Requests
+    description: >-
+      Rate limit exceeded. Per-operation ceilings are documented (users 30/min,
+      user drives 20/min, group reported drives 60/min) alongside a global 60 req/min
+      limit per API key. See rate-limits/mileiq-rate-limits.yml.
+    operations: [get_me, get_user, get_user_drives, get_groups, get_group, get_group_reported_drives]
+  - status: 500
+    title: Internal Server Error
+    description: An unexpected error occurred while processing the request.
+    operations: [get_me, get_user, get_user_drives, get_groups, get_group, get_group_reported_drives]

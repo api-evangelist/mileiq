@@ -1,0 +1,27 @@
+generated: '2026-07-20'
+method: searched
+source: https://developer.mileiq.com/api-reference/changelog
+versioning:
+  scheme: uri-path
+  current: v1
+  spec_version: 1.4.0
+  docs: https://developer.mileiq.com/api-reference/changelog
+availability:
+  status: request-based
+  note: The MileIQ External API is currently available on a request basis (approved API-access applications).
+deprecation:
+  policy_url: null
+  sunset_header: false
+  note: >-
+    No formal deprecation/Sunset (RFC 8594) policy page is published. Deprecations are
+    announced in the changelog and marked in the spec: the modified_before / modified_after
+    query parameters on the drive-list operations are DEPRECATED in favor of
+    date_before / date_after + filter_by.
+deprecated_parameters:
+  - openapi/mileiq-external-openapi-original.json#get_user_drives:modified_before
+  - openapi/mileiq-external-openapi-original.json#get_user_drives:modified_after
+  - openapi/mileiq-external-openapi-original.json#get_group_reported_drives:modified_before
+  - openapi/mileiq-external-openapi-original.json#get_group_reported_drives:modified_after
+status_page: null
+sla: null
+changelog: changelog/mileiq-changelog.yml

@@ -1,0 +1,37 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements for MileIQ External API
+  version: 1.0.0
+extends: openapi/mileiq-external-openapi-original.json
+actions:
+  - target: $.info
+    update:
+      x-apievangelist-rating: 3
+      x-apievangelist-notes: >-
+        Read-only OAuth 2.1 API over MileIQ mileage data (users, drives, groups). Clean
+        FastAPI-generated OpenAPI 3.1 with rich schemas and per-response descriptions.
+        Gaps: securitySchemes are not declared in the spec (auth documented out-of-band),
+        and no RFC 9457 problem+json error envelope.
+  - target: $.info
+    update:
+      x-authentication: authentication/mileiq-authentication.yml
+      x-scopes: scopes/mileiq-scopes.yml
+      x-conventions: conventions/mileiq-conventions.yml
+      x-rate-limits: rate-limits/mileiq-rate-limits.yml
+      x-error-catalog: errors/mileiq-problem-types.yml
+  - target: $.components.securitySchemes
+    description: >-
+      Recommend declaring the documented OAuth 2.1 flow as an in-spec securityScheme so
+      tooling can enforce it; captured in authentication/mileiq-authentication.yml.
+    update:
+      MileIQOAuth:
+        type: oauth2
+        flows:
+          authorizationCode:
+            authorizationUrl: https://oauth2.mileiq.com/oauth2/auth
+            tokenUrl: https://oauth2.mileiq.com/oauth2/token
+            scopes:
+              users:read: Read user profile information
+              drives:read:all: Read a user's drive records
+              groups:read: Read groups the user administers
+              groups:read:reported-drives: Read drives reported to a group

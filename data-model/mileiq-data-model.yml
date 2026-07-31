@@ -1,0 +1,74 @@
+generated: '2026-07-20'
+method: derived
+source: openapi/mileiq-external-openapi-original.json
+entities:
+  - name: User
+    schema: UserSchema
+    id: id (Parse ID, string)
+    fields: [userName, name, emails, active, displayName]
+  - name: Drive
+    schema: DriveSchema
+    id: drive_id (integer)
+    fields: [distance, value, toll_fees, parking_fees, description, entry, classification, purpose, start, end, created, modified, started_at, ended_at]
+  - name: Group
+    schema: GroupSchema
+    id: id (string)
+    fields: [display_name, members, meta]
+  - name: GroupMember
+    schema: GroupMember
+    id: value (member Parse ID)
+    fields: [display, is_admin, is_driver]
+  - name: ReportedDrive
+    schema: ReportedDriveSchema
+    id: id (string)
+    fields: [driver, details, created, modified, status, review_comments]
+  - name: Driver
+    schema: Driver
+    id: id (Parse ID, string)
+    fields: [name, email, status, timezone_offset]
+  - name: ReviewComment
+    schema: ReviewComment
+    id: id (string)
+    fields: [text, created_at, user_email]
+value_objects: [Name, Email, Address, Geolocation, Distance, DistanceWithDiscount, Value, Meta]
+relationships:
+  - from: User
+    to: Name
+    kind: has_one
+    via: name
+  - from: User
+    to: Email
+    kind: has_many
+    via: emails
+  - from: User
+    to: Drive
+    kind: has_many
+    via: /v1/users/{user_id}/drives
+  - from: Group
+    to: GroupMember
+    kind: has_many
+    via: members
+  - from: Group
+    to: ReportedDrive
+    kind: has_many
+    via: /v1/groups/{group_id}/reported-drives
+  - from: ReportedDrive
+    to: Driver
+    kind: has_one
+    via: driver
+  - from: ReportedDrive
+    to: ReviewComment
+    kind: has_many
+    via: review_comments
+  - from: Drive
+    to: Geolocation
+    kind: has_one
+    via: start,end
+  - from: Drive
+    to: Value
+    kind: has_one
+    via: value,toll_fees,parking_fees
+  - from: Geolocation
+    to: Address
+    kind: has_one
+    via: address

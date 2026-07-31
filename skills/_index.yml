@@ -1,0 +1,12 @@
+generated: '2026-07-20'
+method: generated
+source: openapi/mileiq-external-openapi-original.json
+skills:
+  - file: mileiq-retrieve-user-drives.md
+    name: Retrieve a user's MileIQ drives
+    api: openapi/mileiq-external-openapi-original.json
+    operations: [get_me, get_user_drives]
+  - file: mileiq-review-group-reported-drives.md
+    name: Review a MileIQ group's reported drives
+    api: openapi/mileiq-external-openapi-original.json
+    operations: [get_groups, get_group, get_group_reported_drives]
