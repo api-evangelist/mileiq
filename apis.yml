@@ -70,6 +70,8 @@ maintainers:
 - FN: APIs.json
   email: info@apis.io
 common:
+- type: Overlay
+  url: overlays/mileiq-external-overlay.yaml
 - type: DomainSecurity
   url: security/mileiq-domain-security.yml
 - type: Website
