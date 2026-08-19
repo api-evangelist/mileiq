@@ -1,0 +1,120 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "MileIQ External groups users API",
+    "version": "1.4.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "users",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get Current User Profile",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://external-api.mileiq.com/v1/users/me",
+            "headers": [
+              {
+                "name": "Authorization",
+                "value": ""
+              }
+            ]
+          },
+          "docs": "Retrieve comprehensive profile information for the currently authenticated user, including personal details, contact information, and account status."
+        },
+        {
+          "info": {
+            "name": "Get User by ID",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://external-api.mileiq.com/v1/users/:user_id",
+            "headers": [
+              {
+                "name": "Authorization",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "user_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Retrieve detailed profile information for a specific user by their unique identifier. Note: Users can only access their own profile data due to privacy restrictions."
+        },
+        {
+          "info": {
+            "name": "Get User Drives",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://external-api.mileiq.com/v1/users/:user_id/drives",
+            "headers": [
+              {
+                "name": "Authorization",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "classification",
+                "value": "business",
+                "type": "query",
+                "description": "Drive classification"
+              },
+              {
+                "name": "limit",
+                "value": "50",
+                "type": "query",
+                "description": "The number of drives to retrieve"
+              },
+              {
+                "name": "date_before",
+                "value": "2024-05-05T16:01:07Z",
+                "type": "query",
+                "description": "The end date of the range to retrieve drives for based on the defined filter_by param (exclusive). Filter_by needs to be set for this field to be used. Should be in UTC"
+              },
+              {
+                "name": "date_after",
+                "value": "2024-05-05T16:01:07Z",
+                "type": "query",
+                "description": "The start date of the range to retrieve drives for based on the defined filter_by param (exclusive). Filter_by needs to be set for this field to be used. Should be in UTC"
+              },
+              {
+                "name": "filter_by",
+                "value": "",
+                "type": "query",
+                "description": "Use 'ended' to filter by the date the drive has ended. Use 'modified' to filter by the date the drive was last updated"
+              },
+              {
+                "name": "modified_before",
+                "value": "2024-05-12T16:01:07Z",
+                "type": "query",
+                "description": "The end date of the range to retrieve drives for (exclusive). If the drive was reviewed by an admin, this will be the last review date. If not, this will be the same as the date it was reported. [DEPRECATED] Use [date_before, date_after] + filter_by instead"
+              },
+              {
+                "name": "modified_after",
+                "value": "2024-05-05T16:01:07Z",
+                "type": "query",
+                "description": "The start date of the range to retrieve drives for (exclusive). If the drive was reviewed by an admin, this will be the last review date. If not, this will be the same as the date it was reported. [DEPRECATED] Use [date_before, date_after] + filter_by instead"
+              }
+            ]
+          },
+          "docs": "Retrieve a paginated list of drives for a specific user, ordered by last modification date (most recent first). Supports filtering by drive classification (business, personal, or all) and date ranges. Note: The 'created' field represents when the drive was recorded in the system, while 'started_at' and 'ended_at' indicate the actual drive times. Users can only access their own drive data. Returns comprehensive drive information including locations, distance, value calculations, and metadata."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

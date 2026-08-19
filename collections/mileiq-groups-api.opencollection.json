@@ -1,0 +1,119 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "MileIQ External groups API",
+    "version": "1.4.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "groups",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get Groups",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://external-api.mileiq.com/v1/groups",
+            "headers": [
+              {
+                "name": "Authorization",
+                "value": ""
+              }
+            ]
+          },
+          "docs": "Retrieve all groups (teams) that the authenticated user has administrative access to. Only returns groups where the user is designated as an administrator."
+        },
+        {
+          "info": {
+            "name": "Get Group by ID",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://external-api.mileiq.com/v1/groups/:group_id",
+            "headers": [
+              {
+                "name": "Authorization",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "group_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Retrieve detailed information for a specific group by its unique identifier. The authenticated user must be an administrator of the requested group to access its data."
+        },
+        {
+          "info": {
+            "name": "Get Group Reported Drives",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://external-api.mileiq.com/v1/groups/:group_id/reported-drives",
+            "headers": [
+              {
+                "name": "Authorization",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "group_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "limit",
+                "value": "50",
+                "type": "query",
+                "description": "The number of drives to retrieve"
+              },
+              {
+                "name": "date_before",
+                "value": "2024-05-05T16:01:07Z",
+                "type": "query",
+                "description": "The end date of the range to retrieve drives for based on the defined filter_by param (exclusive). Filter_by needs to be set for this field to be used. Should be in UTC"
+              },
+              {
+                "name": "date_after",
+                "value": "2024-05-05T16:01:07Z",
+                "type": "query",
+                "description": "The start date of the range to retrieve drives for based on the defined filter_by param (exclusive). Filter_by needs to be set for this field to be used. Should be in UTC"
+              },
+              {
+                "name": "filter_by",
+                "value": "",
+                "type": "query",
+                "description": "Use 'ended' to filter by the date the drive has ended. Use 'modified' to filter by the date the drive was last updated"
+              },
+              {
+                "name": "modified_before",
+                "value": "2024-05-12T16:01:07Z",
+                "type": "query",
+                "description": "The end date of the range to retrieve drives for (exclusive). If the drive was reviewed by an admin, this will be the last review date. If not, this will be the same as the date it was reported. [DEPRECATED] Use [date_before, date_after] + filter_by instead"
+              },
+              {
+                "name": "modified_after",
+                "value": "2024-05-05T16:01:07Z",
+                "type": "query",
+                "description": "The start date of the range to retrieve drives for (exclusive). If the drive was reviewed by an admin, this will be the last review date. If not, this will be the same as the date it was reported. [DEPRECATED] Use [date_before, date_after] + filter_by instead"
+              }
+            ]
+          },
+          "docs": "Retrieve a paginated list of reported drives for a specific group, ordered by last modification date (most recent first). This endpoint returns drives that have been submitted for review by group members. Note: The 'created' field represents when the drive was reported to the system, while 'started_at' and 'ended_at' indicate the actual drive times. Supports filtering by date ranges and includes comprehensive drive details, driver information, and review status."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}
