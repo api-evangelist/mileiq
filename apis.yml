@@ -50,6 +50,8 @@ apis:
   humanURL: https://developer.mileiq.com/
   baseURL: https://external-api.mileiq.com
   tags:
+  - Group
+  tags_raw:
   - groups
   properties:
   - type: OpenAPI
@@ -60,6 +62,8 @@ apis:
   humanURL: https://developer.mileiq.com/
   baseURL: https://external-api.mileiq.com
   tags:
+  - User
+  tags_raw:
   - users
   properties:
   - type: OpenAPI
