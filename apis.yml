@@ -134,8 +134,9 @@ common:
   url: data-model/mileiq-data-model.yml
 - type: WellKnown
   url: well-known/mileiq-well-known.yml
-- type: MCPServer
+- type: X-MCPServerCandidate
   url: mcp/mileiq-mcp.yml
+  note: 'Renamed from MCPServer 2026-09-03 (roadmap#247): the manifest self-describes as status: candidate — a tool list derived from the published API contracts, not an existing server. The scorer already read the manifest and reported mcp_server correctly; the MCPServer type was crediting the artifact-type surfaces with a server that does not exist.'
 - type: LLMsTxt
   url: llms/mileiq-llms.txt
 - type: AgenticAccess
