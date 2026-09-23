@@ -1,6 +1,6 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
-  title: MileIQ External groups API
+  title: MileIQ External Groups API
   description: External API for integrating with the MileIQ Platform.
   termsOfService: https://mileiq.com/terms
   contact:
@@ -12,12 +12,12 @@ servers:
 - url: https://external-api.mileiq.com
   description: MileIQ External API
 tags:
-- name: groups
+- name: Groups
 paths:
   /v1/groups:
     get:
       tags:
-      - groups
+      - Groups
       summary: Get Groups
       description: Retrieve all groups (teams) that the authenticated user has administrative access to. Only returns groups where the user is designated as an administrator.
       operationId: get_groups
@@ -52,7 +52,7 @@ paths:
   /v1/groups/{group_id}:
     get:
       tags:
-      - groups
+      - Groups
       summary: Get Group by ID
       description: Retrieve detailed information for a specific group by its unique identifier. The authenticated user must be an administrator of the requested group to access its data.
       operationId: get_group
@@ -91,7 +91,7 @@ paths:
   /v1/groups/{group_id}/reported-drives:
     get:
       tags:
-      - groups
+      - Groups
       summary: Get Group Reported Drives
       description: 'Retrieve a paginated list of reported drives for a specific group, ordered by last modification date (most recent first). This endpoint returns drives that have been submitted for review by group members. Note: The ''created'' field represents when the drive was reported to the system, while ''started_at'' and ''ended_at'' indicate the actual drive times. Supports filtering by date ranges and includes comprehensive drive details, driver information, and review status.'
       operationId: get_group_reported_drives
@@ -201,6 +201,95 @@ paths:
           description: Internal server error. An unexpected error occurred while processing the request.
 components:
   schemas:
+    Driver:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: Driver parse ID
+        name:
+          type: string
+          title: Name
+          description: Driver's full name
+        email:
+          type: string
+          title: Email
+          description: Driver's email address
+        status:
+          type: string
+          title: Status
+          description: Whether the driver is active
+        timezone_offset:
+          type: number
+          title: Timezone Offset
+          description: Timezone offset for the user
+      type: object
+      required:
+      - id
+      - name
+      - email
+      - status
+      - timezone_offset
+      title: Driver
+      description: Represent a driver information
+    GetReportedDrivesResponse:
+      properties:
+        results:
+          items:
+            $ref: '#/components/schemas/ReportedDriveSchema'
+          type: array
+          title: Results
+          description: Array of reported drive objects containing complete drive details, driver information, and review status for group reporting
+        has_more:
+          type: boolean
+          title: Has More
+          description: Pagination indicator - true if additional drives exist beyond the current result set within the specified filters and date range
+      type: object
+      required:
+      - results
+      - has_more
+      title: GetReportedDrivesResponse
+    Geolocation:
+      properties:
+        name:
+          type: string
+          title: Name
+          description: The name of the location
+        lat:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Lat
+          description: The latitude of the location
+        lon:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Lon
+          description: The longitude of the location
+        time:
+          type: string
+          format: date-time
+          title: Time
+          description: The time in ISO 8601 format
+        address:
+          anyOf:
+          - $ref: '#/components/schemas/Address'
+          - type: 'null'
+          description: The address of the location
+      type: object
+      required:
+      - name
+      - time
+      title: Geolocation
+      description: Represent the geolocation information of a drive
+    DistanceUnits:
+      type: string
+      enum:
+      - mi
+      - km
+      title: DistanceUnits
+      description: Different distance units used for drives
     Address:
       properties:
         country:
@@ -236,40 +325,131 @@ components:
       type: object
       title: Address
       description: Geographical address information for drive locations with standardized components
-    Geolocation:
+    ReviewComment:
       properties:
-        name:
+        id:
           type: string
-          title: Name
-          description: The name of the location
-        lat:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Lat
-          description: The latitude of the location
-        lon:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Lon
-          description: The longitude of the location
-        time:
+          title: Id
+          description: The ID of the review comment
+        text:
+          type: string
+          title: Text
+          description: The text of the review comment
+        created_at:
           type: string
           format: date-time
-          title: Time
+          title: Created At
           description: The time in ISO 8601 format
-        address:
-          anyOf:
-          - $ref: '#/components/schemas/Address'
-          - type: 'null'
-          description: The address of the location
+        user_email:
+          type: string
+          title: User Email
+          description: The email of the user who made the review comment
       type: object
       required:
-      - name
-      - time
-      title: Geolocation
-      description: Represent the geolocation information of a drive
+      - id
+      - text
+      - created_at
+      - user_email
+      title: ReviewComment
+      description: Represent a review comment within a reported drive
+    ReportedDriveSchema:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: The ID of the drive
+        driver:
+          anyOf:
+          - $ref: '#/components/schemas/Driver'
+          - type: 'null'
+          description: The driver of the drive
+        details:
+          anyOf:
+          - $ref: '#/components/schemas/DriveDetails'
+          - type: 'null'
+          description: The details of the drive
+        created:
+          type: string
+          format: date-time
+          title: Created
+          description: The time in which the drive was reported. In ISO 8601 format
+        modified:
+          type: string
+          format: date-time
+          title: Modified
+          description: The last time the drive was reviewed.If it was not reviewed, should be the same as created. In ISO 8601 format
+        status:
+          type: string
+          title: Status
+          description: The status of the drive
+        review_comments:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ReviewComment'
+            type: array
+          - type: 'null'
+          title: Review Comments
+          description: The list of review comments on the drive
+      type: object
+      required:
+      - id
+      - driver
+      - details
+      - created
+      - modified
+      - status
+      - review_comments
+      title: ReportedDriveSchema
+      description: Represents a single drive in a report with the drive details and the driver details.
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    GroupMember:
+      properties:
+        value:
+          type: string
+          title: Value
+          description: Unique identifier for the group member (typically the user's Parse ID)
+        display:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Display
+          description: Human-readable name of the member as shown in the application interface
+        is_admin:
+          type: boolean
+          title: Is Admin
+          description: Boolean indicating whether this member has administrative privileges for the group
+        is_driver:
+          type: boolean
+          title: Is Driver
+          description: Boolean indicating whether this member is designated as a driver who can submit drives to the group
+      type: object
+      required:
+      - value
+      - display
+      - is_admin
+      - is_driver
+      title: GroupMember
+      description: Represents a member of a group with their role assignments and display information
     Currency:
       type: string
       enum:
@@ -278,65 +458,94 @@ components:
       - GBP
       title: Currency
       description: Different currencies used for drives
-    Driver:
+    DriveClassification:
+      type: string
+      enum:
+      - business
+      - personal
+      - unclassified
+      title: DriveClassification
+      description: Drive classifications
+    GroupListResponse:
+      properties:
+        resources:
+          items:
+            $ref: '#/components/schemas/GroupSchema'
+          type: array
+          title: Resources
+          description: Array of group objects containing detailed information about each accessible group, including members, roles, and metadata
+      type: object
+      required:
+      - resources
+      title: GroupListResponse
+      description: Response model containing a collection of groups with their complete information and member details
+    GroupSchema:
       properties:
         id:
-          type: string
+          anyOf:
+          - type: string
+          - type: 'null'
           title: Id
-          description: Driver parse ID
-        name:
+          description: Unique identifier for the group - used for API operations and internal references
+        display_name:
           type: string
-          title: Name
-          description: Driver's full name
-        email:
-          type: string
-          title: Email
-          description: Driver's email address
-        status:
-          type: string
-          title: Status
-          description: Whether the driver is active
-        timezone_offset:
-          type: number
-          title: Timezone Offset
-          description: Timezone offset for the user
+          title: Display Name
+          description: User-friendly name of the group as shown throughout the application interface
+        members:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/GroupMember'
+            type: array
+          - type: 'null'
+          title: Members
+          description: List of all members belonging to this group, including their roles and permissions
+        meta:
+          anyOf:
+          - $ref: '#/components/schemas/Meta'
+          - type: 'null'
+          description: Additional metadata about the group including creation time, last modification, and resource location
       type: object
       required:
       - id
-      - name
-      - email
-      - status
-      - timezone_offset
-      title: Driver
-      description: Represent a driver information
-    Meta:
+      - display_name
+      title: GroupSchema
+      description: Represents a group (team) entity with complete information about its structure, members, and metadata
+    DistanceWithDiscount:
       properties:
-        resourceType:
-          type: string
-          title: Resourcetype
-          description: Type of resource (user/group) - identifies the kind of entity this metadata belongs to
-        created:
-          type: string
-          format: date-time
-          title: Created
-          description: Timestamp when the resource was originally created, in ISO 8601 format
-        lastModified:
-          type: string
-          format: date-time
-          title: Lastmodified
-          description: Timestamp when the resource was last updated or modified, in ISO 8601 format
-        location:
-          type: string
-          title: Location
-          description: Canonical URL where this resource can be accessed via the API
+        amount:
+          type: number
+          title: Amount
+          description: The amount of the distance, in the specified units
+        units:
+          $ref: '#/components/schemas/DistanceUnits'
+          description: The units of the distance
+        discounted:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Discounted
+          description: The discounted amount of the distance, in the specified units
       type: object
       required:
-      - resourceType
-      - created
-      - lastModified
-      - location
-      title: Meta
-      description: Generic metadata providing audit trail and resource identification information
+      - amount
+      - units
+      title: DistanceWithDiscount
+      description: Represent the distance for a drive, with a discounted value set by the team
+    Distance:
+      properties:
+        amount:
+          type: number
+          title: Amount
+          description: The amount of the distance, in the specified units
+        units:
+          $ref: '#/components/schemas/DistanceUnits'
+          description: The units of the distance
+      type: object
+      required:
+      - amount
+      - units
+      title: Distance
+      description: Represent the distance for a drive
     DriveDetails:
       properties:
         distance:
@@ -405,15 +614,6 @@ components:
       - end
       title: DriveDetails
       description: Details of a single drive.
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
     Value:
       properties:
         amount:
@@ -429,128 +629,6 @@ components:
       - currency
       title: Value
       description: Represent the value of a drive (excluding toll & parking fees)
-    DriveClassification:
-      type: string
-      enum:
-      - business
-      - personal
-      - unclassified
-      title: DriveClassification
-      description: Drive classifications
-    GroupSchema:
-      properties:
-        id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Id
-          description: Unique identifier for the group - used for API operations and internal references
-        display_name:
-          type: string
-          title: Display Name
-          description: User-friendly name of the group as shown throughout the application interface
-        members:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/GroupMember'
-            type: array
-          - type: 'null'
-          title: Members
-          description: List of all members belonging to this group, including their roles and permissions
-        meta:
-          anyOf:
-          - $ref: '#/components/schemas/Meta'
-          - type: 'null'
-          description: Additional metadata about the group including creation time, last modification, and resource location
-      type: object
-      required:
-      - id
-      - display_name
-      title: GroupSchema
-      description: Represents a group (team) entity with complete information about its structure, members, and metadata
-    GroupListResponse:
-      properties:
-        resources:
-          items:
-            $ref: '#/components/schemas/GroupSchema'
-          type: array
-          title: Resources
-          description: Array of group objects containing detailed information about each accessible group, including members, roles, and metadata
-      type: object
-      required:
-      - resources
-      title: GroupListResponse
-      description: Response model containing a collection of groups with their complete information and member details
-    ReportedDriveSchema:
-      properties:
-        id:
-          type: string
-          title: Id
-          description: The ID of the drive
-        driver:
-          anyOf:
-          - $ref: '#/components/schemas/Driver'
-          - type: 'null'
-          description: The driver of the drive
-        details:
-          anyOf:
-          - $ref: '#/components/schemas/DriveDetails'
-          - type: 'null'
-          description: The details of the drive
-        created:
-          type: string
-          format: date-time
-          title: Created
-          description: The time in which the drive was reported. In ISO 8601 format
-        modified:
-          type: string
-          format: date-time
-          title: Modified
-          description: The last time the drive was reviewed.If it was not reviewed, should be the same as created. In ISO 8601 format
-        status:
-          type: string
-          title: Status
-          description: The status of the drive
-        review_comments:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/ReviewComment'
-            type: array
-          - type: 'null'
-          title: Review Comments
-          description: The list of review comments on the drive
-      type: object
-      required:
-      - id
-      - driver
-      - details
-      - created
-      - modified
-      - status
-      - review_comments
-      title: ReportedDriveSchema
-      description: Represents a single drive in a report with the drive details and the driver details.
-    DistanceWithDiscount:
-      properties:
-        amount:
-          type: number
-          title: Amount
-          description: The amount of the distance, in the specified units
-        units:
-          $ref: '#/components/schemas/DistanceUnits'
-          description: The units of the distance
-        discounted:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Discounted
-          description: The discounted amount of the distance, in the specified units
-      type: object
-      required:
-      - amount
-      - units
-      title: DistanceWithDiscount
-      description: Represent the distance for a drive, with a discounted value set by the team
     DriveEntry:
       type: string
       enum:
@@ -558,124 +636,46 @@ components:
       - automatic
       title: DriveEntry
       description: Whether the drive was entered manually or automatically
-    GroupMember:
+    HTTPValidationError:
       properties:
-        value:
-          type: string
-          title: Value
-          description: Unique identifier for the group member (typically the user's Parse ID)
-        display:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Display
-          description: Human-readable name of the member as shown in the application interface
-        is_admin:
-          type: boolean
-          title: Is Admin
-          description: Boolean indicating whether this member has administrative privileges for the group
-        is_driver:
-          type: boolean
-          title: Is Driver
-          description: Boolean indicating whether this member is designated as a driver who can submit drives to the group
-      type: object
-      required:
-      - value
-      - display
-      - is_admin
-      - is_driver
-      title: GroupMember
-      description: Represents a member of a group with their role assignments and display information
-    ValidationError:
-      properties:
-        loc:
+        detail:
           items:
-            anyOf:
-            - type: string
-            - type: integer
+            $ref: '#/components/schemas/ValidationError'
           type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
+          title: Detail
       type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
+      title: HTTPValidationError
     GetDrivesRequestFilterBy:
       type: string
       enum:
       - modified
       - ended
       title: GetDrivesRequestFilterBy
-    DistanceUnits:
-      type: string
-      enum:
-      - mi
-      - km
-      title: DistanceUnits
-      description: Different distance units used for drives
-    Distance:
+    Meta:
       properties:
-        amount:
-          type: number
-          title: Amount
-          description: The amount of the distance, in the specified units
-        units:
-          $ref: '#/components/schemas/DistanceUnits'
-          description: The units of the distance
-      type: object
-      required:
-      - amount
-      - units
-      title: Distance
-      description: Represent the distance for a drive
-    GetReportedDrivesResponse:
-      properties:
-        results:
-          items:
-            $ref: '#/components/schemas/ReportedDriveSchema'
-          type: array
-          title: Results
-          description: Array of reported drive objects containing complete drive details, driver information, and review status for group reporting
-        has_more:
-          type: boolean
-          title: Has More
-          description: Pagination indicator - true if additional drives exist beyond the current result set within the specified filters and date range
-      type: object
-      required:
-      - results
-      - has_more
-      title: GetReportedDrivesResponse
-    ReviewComment:
-      properties:
-        id:
+        resourceType:
           type: string
-          title: Id
-          description: The ID of the review comment
-        text:
-          type: string
-          title: Text
-          description: The text of the review comment
-        created_at:
+          title: Resourcetype
+          description: Type of resource (user/group) - identifies the kind of entity this metadata belongs to
+        created:
           type: string
           format: date-time
-          title: Created At
-          description: The time in ISO 8601 format
-        user_email:
+          title: Created
+          description: Timestamp when the resource was originally created, in ISO 8601 format
+        lastModified:
           type: string
-          title: User Email
-          description: The email of the user who made the review comment
+          format: date-time
+          title: Lastmodified
+          description: Timestamp when the resource was last updated or modified, in ISO 8601 format
+        location:
+          type: string
+          title: Location
+          description: Canonical URL where this resource can be accessed via the API
       type: object
       required:
-      - id
-      - text
-      - created_at
-      - user_email
-      title: ReviewComment
-      description: Represent a review comment within a reported drive
+      - resourceType
+      - created
+      - lastModified
+      - location
+      title: Meta
+      description: Generic metadata providing audit trail and resource identification information
