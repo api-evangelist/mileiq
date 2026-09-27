@@ -57,7 +57,7 @@ tags:
 - Fleet
 apis:
 - aid: mileiq:mileiq-groups-api
-  name: MileIQ groups API
+  name: MileIQ Groups API
   description: The groups API from MileIQ — 3 operation(s) for groups.
   humanURL: https://developer.mileiq.com/
   baseURL: https://external-api.mileiq.com
@@ -69,7 +69,7 @@ apis:
   - type: OpenAPI
     url: openapi/mileiq-groups-api-openapi.yml
 - aid: mileiq:mileiq-users-api
-  name: MileIQ users API
+  name: MileIQ Users API
   description: The users API from MileIQ — 3 operation(s) for users.
   humanURL: https://developer.mileiq.com/
   baseURL: https://external-api.mileiq.com
