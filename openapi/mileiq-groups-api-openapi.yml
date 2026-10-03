@@ -201,48 +201,171 @@ paths:
           description: Internal server error. An unexpected error occurred while processing the request.
 components:
   schemas:
-    Value:
-      properties:
-        amount:
-          type: integer
-          title: Amount
-          description: The amount of the value, in the smallest unit of currency
-        currency:
-          $ref: '#/components/schemas/Currency'
-          description: The currency of the value, in ISO 4217 format
-      type: object
-      required:
-      - amount
-      - currency
-      title: Value
-      description: Represent the value of a drive (excluding toll & parking fees)
-    ReviewComment:
+    ReportedDriveSchema:
       properties:
         id:
           type: string
           title: Id
-          description: The ID of the review comment
-        text:
-          type: string
-          title: Text
-          description: The text of the review comment
-        created_at:
+          description: The ID of the drive
+        driver:
+          anyOf:
+          - $ref: '#/components/schemas/Driver'
+          - type: 'null'
+          description: The driver of the drive
+        details:
+          anyOf:
+          - $ref: '#/components/schemas/DriveDetails'
+          - type: 'null'
+          description: The details of the drive
+        created:
           type: string
           format: date-time
-          title: Created At
-          description: The time in ISO 8601 format
-        user_email:
+          title: Created
+          description: The time in which the drive was reported. In ISO 8601 format
+        modified:
           type: string
-          title: User Email
-          description: The email of the user who made the review comment
+          format: date-time
+          title: Modified
+          description: The last time the drive was reviewed.If it was not reviewed, should be the same as created. In ISO 8601 format
+        status:
+          type: string
+          title: Status
+          description: The status of the drive
+        review_comments:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ReviewComment'
+            type: array
+          - type: 'null'
+          title: Review Comments
+          description: The list of review comments on the drive
       type: object
       required:
       - id
-      - text
-      - created_at
-      - user_email
-      title: ReviewComment
-      description: Represent a review comment within a reported drive
+      - driver
+      - details
+      - created
+      - modified
+      - status
+      - review_comments
+      title: ReportedDriveSchema
+      description: Represents a single drive in a report with the drive details and the driver details.
+    DriveClassification:
+      type: string
+      enum:
+      - business
+      - personal
+      - unclassified
+      title: DriveClassification
+      description: Drive classifications
+    GetDrivesRequestFilterBy:
+      type: string
+      enum:
+      - modified
+      - ended
+      title: GetDrivesRequestFilterBy
+    Distance:
+      properties:
+        amount:
+          type: number
+          title: Amount
+          description: The amount of the distance, in the specified units
+        units:
+          $ref: '#/components/schemas/DistanceUnits'
+          description: The units of the distance
+      type: object
+      required:
+      - amount
+      - units
+      title: Distance
+      description: Represent the distance for a drive
+    DistanceUnits:
+      type: string
+      enum:
+      - mi
+      - km
+      title: DistanceUnits
+      description: Different distance units used for drives
+    DriveEntry:
+      type: string
+      enum:
+      - manual
+      - automatic
+      title: DriveEntry
+      description: Whether the drive was entered manually or automatically
+    Address:
+      properties:
+        country:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Country
+          description: Country name or code where the location is situated
+        state:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: State
+          description: State, province, or administrative region within the country
+        city:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: City
+          description: City or municipality name
+        street:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Street
+          description: Street address including number and street name
+        postal_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Postal Code
+          description: Postal or ZIP code for the location
+      type: object
+      title: Address
+      description: Geographical address information for drive locations with standardized components
+    DistanceWithDiscount:
+      properties:
+        amount:
+          type: number
+          title: Amount
+          description: The amount of the distance, in the specified units
+        units:
+          $ref: '#/components/schemas/DistanceUnits'
+          description: The units of the distance
+        discounted:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Discounted
+          description: The discounted amount of the distance, in the specified units
+      type: object
+      required:
+      - amount
+      - units
+      title: DistanceWithDiscount
+      description: Represent the distance for a drive, with a discounted value set by the team
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    Currency:
+      type: string
+      enum:
+      - USD
+      - CAD
+      - GBP
+      title: Currency
+      description: Different currencies used for drives
     DriveDetails:
       properties:
         distance:
@@ -311,74 +434,19 @@ components:
       - end
       title: DriveDetails
       description: Details of a single drive.
-    Distance:
+    GroupListResponse:
       properties:
-        amount:
-          type: number
-          title: Amount
-          description: The amount of the distance, in the specified units
-        units:
-          $ref: '#/components/schemas/DistanceUnits'
-          description: The units of the distance
-      type: object
-      required:
-      - amount
-      - units
-      title: Distance
-      description: Represent the distance for a drive
-    Meta:
-      properties:
-        resourceType:
-          type: string
-          title: Resourcetype
-          description: Type of resource (user/group) - identifies the kind of entity this metadata belongs to
-        created:
-          type: string
-          format: date-time
-          title: Created
-          description: Timestamp when the resource was originally created, in ISO 8601 format
-        lastModified:
-          type: string
-          format: date-time
-          title: Lastmodified
-          description: Timestamp when the resource was last updated or modified, in ISO 8601 format
-        location:
-          type: string
-          title: Location
-          description: Canonical URL where this resource can be accessed via the API
-      type: object
-      required:
-      - resourceType
-      - created
-      - lastModified
-      - location
-      title: Meta
-      description: Generic metadata providing audit trail and resource identification information
-    GetReportedDrivesResponse:
-      properties:
-        results:
+        resources:
           items:
-            $ref: '#/components/schemas/ReportedDriveSchema'
+            $ref: '#/components/schemas/GroupSchema'
           type: array
-          title: Results
-          description: Array of reported drive objects containing complete drive details, driver information, and review status for group reporting
-        has_more:
-          type: boolean
-          title: Has More
-          description: Pagination indicator - true if additional drives exist beyond the current result set within the specified filters and date range
+          title: Resources
+          description: Array of group objects containing detailed information about each accessible group, including members, roles, and metadata
       type: object
       required:
-      - results
-      - has_more
-      title: GetReportedDrivesResponse
-    DriveClassification:
-      type: string
-      enum:
-      - business
-      - personal
-      - unclassified
-      title: DriveClassification
-      description: Drive classifications
+      - resources
+      title: GroupListResponse
+      description: Response model containing a collection of groups with their complete information and member details
     GroupMember:
       properties:
         value:
@@ -407,129 +475,6 @@ components:
       - is_driver
       title: GroupMember
       description: Represents a member of a group with their role assignments and display information
-    ReportedDriveSchema:
-      properties:
-        id:
-          type: string
-          title: Id
-          description: The ID of the drive
-        driver:
-          anyOf:
-          - $ref: '#/components/schemas/Driver'
-          - type: 'null'
-          description: The driver of the drive
-        details:
-          anyOf:
-          - $ref: '#/components/schemas/DriveDetails'
-          - type: 'null'
-          description: The details of the drive
-        created:
-          type: string
-          format: date-time
-          title: Created
-          description: The time in which the drive was reported. In ISO 8601 format
-        modified:
-          type: string
-          format: date-time
-          title: Modified
-          description: The last time the drive was reviewed.If it was not reviewed, should be the same as created. In ISO 8601 format
-        status:
-          type: string
-          title: Status
-          description: The status of the drive
-        review_comments:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/ReviewComment'
-            type: array
-          - type: 'null'
-          title: Review Comments
-          description: The list of review comments on the drive
-      type: object
-      required:
-      - id
-      - driver
-      - details
-      - created
-      - modified
-      - status
-      - review_comments
-      title: ReportedDriveSchema
-      description: Represents a single drive in a report with the drive details and the driver details.
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    DriveEntry:
-      type: string
-      enum:
-      - manual
-      - automatic
-      title: DriveEntry
-      description: Whether the drive was entered manually or automatically
-    Driver:
-      properties:
-        id:
-          type: string
-          title: Id
-          description: Driver parse ID
-        name:
-          type: string
-          title: Name
-          description: Driver's full name
-        email:
-          type: string
-          title: Email
-          description: Driver's email address
-        status:
-          type: string
-          title: Status
-          description: Whether the driver is active
-        timezone_offset:
-          type: number
-          title: Timezone Offset
-          description: Timezone offset for the user
-      type: object
-      required:
-      - id
-      - name
-      - email
-      - status
-      - timezone_offset
-      title: Driver
-      description: Represent a driver information
-    DistanceWithDiscount:
-      properties:
-        amount:
-          type: number
-          title: Amount
-          description: The amount of the distance, in the specified units
-        units:
-          $ref: '#/components/schemas/DistanceUnits'
-          description: The units of the distance
-        discounted:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Discounted
-          description: The discounted amount of the distance, in the specified units
-      type: object
-      required:
-      - amount
-      - units
-      title: DistanceWithDiscount
-      description: Represent the distance for a drive, with a discounted value set by the team
-    GetDrivesRequestFilterBy:
-      type: string
-      enum:
-      - modified
-      - ended
-      title: GetDrivesRequestFilterBy
     GroupSchema:
       properties:
         id:
@@ -561,26 +506,23 @@ components:
       - display_name
       title: GroupSchema
       description: Represents a group (team) entity with complete information about its structure, members, and metadata
-    GroupListResponse:
+    GetReportedDrivesResponse:
       properties:
-        resources:
+        results:
           items:
-            $ref: '#/components/schemas/GroupSchema'
+            $ref: '#/components/schemas/ReportedDriveSchema'
           type: array
-          title: Resources
-          description: Array of group objects containing detailed information about each accessible group, including members, roles, and metadata
+          title: Results
+          description: Array of reported drive objects containing complete drive details, driver information, and review status for group reporting
+        has_more:
+          type: boolean
+          title: Has More
+          description: Pagination indicator - true if additional drives exist beyond the current result set within the specified filters and date range
       type: object
       required:
-      - resources
-      title: GroupListResponse
-      description: Response model containing a collection of groups with their complete information and member details
-    DistanceUnits:
-      type: string
-      enum:
-      - mi
-      - km
-      title: DistanceUnits
-      description: Different distance units used for drives
+      - results
+      - has_more
+      title: GetReportedDrivesResponse
     Geolocation:
       properties:
         name:
@@ -615,14 +557,80 @@ components:
       - time
       title: Geolocation
       description: Represent the geolocation information of a drive
-    Currency:
-      type: string
-      enum:
-      - USD
-      - CAD
-      - GBP
-      title: Currency
-      description: Different currencies used for drives
+    Driver:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: Driver parse ID
+        name:
+          type: string
+          title: Name
+          description: Driver's full name
+        email:
+          type: string
+          title: Email
+          description: Driver's email address
+        status:
+          type: string
+          title: Status
+          description: Whether the driver is active
+        timezone_offset:
+          type: number
+          title: Timezone Offset
+          description: Timezone offset for the user
+      type: object
+      required:
+      - id
+      - name
+      - email
+      - status
+      - timezone_offset
+      title: Driver
+      description: Represent a driver information
+    Value:
+      properties:
+        amount:
+          type: integer
+          title: Amount
+          description: The amount of the value, in the smallest unit of currency
+        currency:
+          $ref: '#/components/schemas/Currency'
+          description: The currency of the value, in ISO 4217 format
+      type: object
+      required:
+      - amount
+      - currency
+      title: Value
+      description: Represent the value of a drive (excluding toll & parking fees)
+    Meta:
+      properties:
+        resourceType:
+          type: string
+          title: Resourcetype
+          description: Type of resource (user/group) - identifies the kind of entity this metadata belongs to
+        created:
+          type: string
+          format: date-time
+          title: Created
+          description: Timestamp when the resource was originally created, in ISO 8601 format
+        lastModified:
+          type: string
+          format: date-time
+          title: Lastmodified
+          description: Timestamp when the resource was last updated or modified, in ISO 8601 format
+        location:
+          type: string
+          title: Location
+          description: Canonical URL where this resource can be accessed via the API
+      type: object
+      required:
+      - resourceType
+      - created
+      - lastModified
+      - location
+      title: Meta
+      description: Generic metadata providing audit trail and resource identification information
     ValidationError:
       properties:
         loc:
@@ -644,38 +652,30 @@ components:
       - msg
       - type
       title: ValidationError
-    Address:
+    ReviewComment:
       properties:
-        country:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Country
-          description: Country name or code where the location is situated
-        state:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: State
-          description: State, province, or administrative region within the country
-        city:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: City
-          description: City or municipality name
-        street:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Street
-          description: Street address including number and street name
-        postal_code:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Postal Code
-          description: Postal or ZIP code for the location
+        id:
+          type: string
+          title: Id
+          description: The ID of the review comment
+        text:
+          type: string
+          title: Text
+          description: The text of the review comment
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+          description: The time in ISO 8601 format
+        user_email:
+          type: string
+          title: User Email
+          description: The email of the user who made the review comment
       type: object
-      title: Address
-      description: Geographical address information for drive locations with standardized components
+      required:
+      - id
+      - text
+      - created_at
+      - user_email
+      title: ReviewComment
+      description: Represent a review comment within a reported drive

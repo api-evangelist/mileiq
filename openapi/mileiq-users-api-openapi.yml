@@ -227,214 +227,15 @@ components:
       - type
       title: Email
       description: Email address information with classification and priority designation
-    Geolocation:
+    HTTPValidationError:
       properties:
-        name:
-          type: string
-          title: Name
-          description: The name of the location
-        lat:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Lat
-          description: The latitude of the location
-        lon:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Lon
-          description: The longitude of the location
-        time:
-          type: string
-          format: date-time
-          title: Time
-          description: The time in ISO 8601 format
-        address:
-          anyOf:
-          - $ref: '#/components/schemas/Address'
-          - type: 'null'
-          description: The address of the location
-      type: object
-      required:
-      - name
-      - time
-      title: Geolocation
-      description: Represent the geolocation information of a drive
-    Value:
-      properties:
-        amount:
-          type: integer
-          title: Amount
-          description: The amount of the value, in the smallest unit of currency
-        currency:
-          $ref: '#/components/schemas/Currency'
-          description: The currency of the value, in ISO 4217 format
-      type: object
-      required:
-      - amount
-      - currency
-      title: Value
-      description: Represent the value of a drive (excluding toll & parking fees)
-    DistanceWithDiscount:
-      properties:
-        amount:
-          type: number
-          title: Amount
-          description: The amount of the distance, in the specified units
-        units:
-          $ref: '#/components/schemas/DistanceUnits'
-          description: The units of the distance
-        discounted:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Discounted
-          description: The discounted amount of the distance, in the specified units
-      type: object
-      required:
-      - amount
-      - units
-      title: DistanceWithDiscount
-      description: Represent the distance for a drive, with a discounted value set by the team
-    GetDrivesRequestFilterBy:
-      type: string
-      enum:
-      - modified
-      - ended
-      title: GetDrivesRequestFilterBy
-    Distance:
-      properties:
-        amount:
-          type: number
-          title: Amount
-          description: The amount of the distance, in the specified units
-        units:
-          $ref: '#/components/schemas/DistanceUnits'
-          description: The units of the distance
-      type: object
-      required:
-      - amount
-      - units
-      title: Distance
-      description: Represent the distance for a drive
-    Currency:
-      type: string
-      enum:
-      - USD
-      - CAD
-      - GBP
-      title: Currency
-      description: Different currencies used for drives
-    ValidationError:
-      properties:
-        loc:
+        detail:
           items:
-            anyOf:
-            - type: string
-            - type: integer
+            $ref: '#/components/schemas/ValidationError'
           type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
+          title: Detail
       type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    Name:
-      properties:
-        givenName:
-          type: string
-          title: Givenname
-          description: User's first name (given name) as recorded in their profile
-        familyName:
-          type: string
-          title: Familyname
-          description: User's last name (family name/surname) as recorded in their profile
-        formatted:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Formatted
-          description: Full name formatted for display purposes, combining first and last names in a readable format
-      type: object
-      required:
-      - givenName
-      - familyName
-      title: Name
-      description: Complete name information for a user including both individual components and formatted display
-    GetDrivesResponse:
-      properties:
-        results:
-          items:
-            $ref: '#/components/schemas/DriveSchema'
-          type: array
-          title: Results
-          description: Array of drive objects containing comprehensive trip information including locations, distances, values, and metadata
-        has_more:
-          type: boolean
-          title: Has More
-          description: Pagination indicator - true if additional drives exist beyond the current result set within the specified filters and date range
-      type: object
-      required:
-      - results
-      - has_more
-      title: GetDrivesResponse
-    Address:
-      properties:
-        country:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Country
-          description: Country name or code where the location is situated
-        state:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: State
-          description: State, province, or administrative region within the country
-        city:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: City
-          description: City or municipality name
-        street:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Street
-          description: Street address including number and street name
-        postal_code:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Postal Code
-          description: Postal or ZIP code for the location
-      type: object
-      title: Address
-      description: Geographical address information for drive locations with standardized components
-    DriveEntry:
-      type: string
-      enum:
-      - manual
-      - automatic
-      title: DriveEntry
-      description: Whether the drive was entered manually or automatically
-    DistanceUnits:
-      type: string
-      enum:
-      - mi
-      - km
-      title: DistanceUnits
-      description: Different distance units used for drives
+      title: HTTPValidationError
     DriveSchema:
       properties:
         distance:
@@ -532,15 +333,91 @@ components:
       - ended_at
       title: DriveSchema
       description: Represents a single drive (trip) with all its details.
-    HTTPValidationError:
+    DriveClassification:
+      type: string
+      enum:
+      - business
+      - personal
+      - unclassified
+      title: DriveClassification
+      description: Drive classifications
+    GetDrivesRequestFilterBy:
+      type: string
+      enum:
+      - modified
+      - ended
+      title: GetDrivesRequestFilterBy
+    Name:
       properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
+        givenName:
+          type: string
+          title: Givenname
+          description: User's first name (given name) as recorded in their profile
+        familyName:
+          type: string
+          title: Familyname
+          description: User's last name (family name/surname) as recorded in their profile
+        formatted:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Formatted
+          description: Full name formatted for display purposes, combining first and last names in a readable format
       type: object
-      title: HTTPValidationError
+      required:
+      - givenName
+      - familyName
+      title: Name
+      description: Complete name information for a user including both individual components and formatted display
+    Geolocation:
+      properties:
+        name:
+          type: string
+          title: Name
+          description: The name of the location
+        lat:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Lat
+          description: The latitude of the location
+        lon:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Lon
+          description: The longitude of the location
+        time:
+          type: string
+          format: date-time
+          title: Time
+          description: The time in ISO 8601 format
+        address:
+          anyOf:
+          - $ref: '#/components/schemas/Address'
+          - type: 'null'
+          description: The address of the location
+      type: object
+      required:
+      - name
+      - time
+      title: Geolocation
+      description: Represent the geolocation information of a drive
+    Distance:
+      properties:
+        amount:
+          type: number
+          title: Amount
+          description: The amount of the distance, in the specified units
+        units:
+          $ref: '#/components/schemas/DistanceUnits'
+          description: The units of the distance
+      type: object
+      required:
+      - amount
+      - units
+      title: Distance
+      description: Represent the distance for a drive
     DriveClassificationFilter:
       type: string
       enum:
@@ -586,11 +463,134 @@ components:
       - emails
       title: UserSchema
       description: Complete user profile information including identity, contact details, and account status
-    DriveClassification:
+    Value:
+      properties:
+        amount:
+          type: integer
+          title: Amount
+          description: The amount of the value, in the smallest unit of currency
+        currency:
+          $ref: '#/components/schemas/Currency'
+          description: The currency of the value, in ISO 4217 format
+      type: object
+      required:
+      - amount
+      - currency
+      title: Value
+      description: Represent the value of a drive (excluding toll & parking fees)
+    GetDrivesResponse:
+      properties:
+        results:
+          items:
+            $ref: '#/components/schemas/DriveSchema'
+          type: array
+          title: Results
+          description: Array of drive objects containing comprehensive trip information including locations, distances, values, and metadata
+        has_more:
+          type: boolean
+          title: Has More
+          description: Pagination indicator - true if additional drives exist beyond the current result set within the specified filters and date range
+      type: object
+      required:
+      - results
+      - has_more
+      title: GetDrivesResponse
+    Currency:
       type: string
       enum:
-      - business
-      - personal
-      - unclassified
-      title: DriveClassification
-      description: Drive classifications
+      - USD
+      - CAD
+      - GBP
+      title: Currency
+      description: Different currencies used for drives
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    DistanceUnits:
+      type: string
+      enum:
+      - mi
+      - km
+      title: DistanceUnits
+      description: Different distance units used for drives
+    DriveEntry:
+      type: string
+      enum:
+      - manual
+      - automatic
+      title: DriveEntry
+      description: Whether the drive was entered manually or automatically
+    Address:
+      properties:
+        country:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Country
+          description: Country name or code where the location is situated
+        state:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: State
+          description: State, province, or administrative region within the country
+        city:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: City
+          description: City or municipality name
+        street:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Street
+          description: Street address including number and street name
+        postal_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Postal Code
+          description: Postal or ZIP code for the location
+      type: object
+      title: Address
+      description: Geographical address information for drive locations with standardized components
+    DistanceWithDiscount:
+      properties:
+        amount:
+          type: number
+          title: Amount
+          description: The amount of the distance, in the specified units
+        units:
+          $ref: '#/components/schemas/DistanceUnits'
+          description: The units of the distance
+        discounted:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Discounted
+          description: The discounted amount of the distance, in the specified units
+      type: object
+      required:
+      - amount
+      - units
+      title: DistanceWithDiscount
+      description: Represent the distance for a drive, with a discounted value set by the team
