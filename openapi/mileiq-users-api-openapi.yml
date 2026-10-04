@@ -206,36 +206,43 @@ paths:
           description: Internal server error. An unexpected error occurred while processing the request.
 components:
   schemas:
-    Email:
+    Currency:
+      type: string
+      enum:
+      - USD
+      - CAD
+      - GBP
+      title: Currency
+      description: Different currencies used for drives
+    DriveEntry:
+      type: string
+      enum:
+      - manual
+      - automatic
+      title: DriveEntry
+      description: Whether the drive was entered manually or automatically
+    Name:
       properties:
-        value:
+        givenName:
           type: string
-          title: Value
-          description: The actual email address in standard email format (e.g., user@example.com)
-        type:
+          title: Givenname
+          description: User's first name (given name) as recorded in their profile
+        familyName:
           type: string
-          title: Type
-          description: Classification of the email address - typically 'work' for business emails or 'personal' for private emails
-        primary:
-          type: boolean
-          title: Primary
-          description: Boolean flag indicating whether this is the user's primary/default email address for communications
-          default: true
+          title: Familyname
+          description: User's last name (family name/surname) as recorded in their profile
+        formatted:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Formatted
+          description: Full name formatted for display purposes, combining first and last names in a readable format
       type: object
       required:
-      - value
-      - type
-      title: Email
-      description: Email address information with classification and priority designation
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
+      - givenName
+      - familyName
+      title: Name
+      description: Complete name information for a user including both individual components and formatted display
     DriveSchema:
       properties:
         distance:
@@ -333,6 +340,28 @@ components:
       - ended_at
       title: DriveSchema
       description: Represents a single drive (trip) with all its details.
+    DistanceUnits:
+      type: string
+      enum:
+      - mi
+      - km
+      title: DistanceUnits
+      description: Different distance units used for drives
+    Value:
+      properties:
+        amount:
+          type: integer
+          title: Amount
+          description: The amount of the value, in the smallest unit of currency
+        currency:
+          $ref: '#/components/schemas/Currency'
+          description: The currency of the value, in ISO 4217 format
+      type: object
+      required:
+      - amount
+      - currency
+      title: Value
+      description: Represent the value of a drive (excluding toll & parking fees)
     DriveClassification:
       type: string
       enum:
@@ -341,34 +370,27 @@ components:
       - unclassified
       title: DriveClassification
       description: Drive classifications
-    GetDrivesRequestFilterBy:
-      type: string
-      enum:
-      - modified
-      - ended
-      title: GetDrivesRequestFilterBy
-    Name:
+    Email:
       properties:
-        givenName:
+        value:
           type: string
-          title: Givenname
-          description: User's first name (given name) as recorded in their profile
-        familyName:
+          title: Value
+          description: The actual email address in standard email format (e.g., user@example.com)
+        type:
           type: string
-          title: Familyname
-          description: User's last name (family name/surname) as recorded in their profile
-        formatted:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Formatted
-          description: Full name formatted for display purposes, combining first and last names in a readable format
+          title: Type
+          description: Classification of the email address - typically 'work' for business emails or 'personal' for private emails
+        primary:
+          type: boolean
+          title: Primary
+          description: Boolean flag indicating whether this is the user's primary/default email address for communications
+          default: true
       type: object
       required:
-      - givenName
-      - familyName
-      title: Name
-      description: Complete name information for a user including both individual components and formatted display
+      - value
+      - type
+      title: Email
+      description: Email address information with classification and priority designation
     Geolocation:
       properties:
         name:
@@ -403,7 +425,7 @@ components:
       - time
       title: Geolocation
       description: Represent the geolocation information of a drive
-    Distance:
+    DistanceWithDiscount:
       properties:
         amount:
           type: number
@@ -412,19 +434,18 @@ components:
         units:
           $ref: '#/components/schemas/DistanceUnits'
           description: The units of the distance
+        discounted:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Discounted
+          description: The discounted amount of the distance, in the specified units
       type: object
       required:
       - amount
       - units
-      title: Distance
-      description: Represent the distance for a drive
-    DriveClassificationFilter:
-      type: string
-      enum:
-      - business
-      - personal
-      - all
-      title: DriveClassificationFilter
+      title: DistanceWithDiscount
+      description: Represent the distance for a drive, with a discounted value set by the team
     UserSchema:
       properties:
         id:
@@ -463,46 +484,21 @@ components:
       - emails
       title: UserSchema
       description: Complete user profile information including identity, contact details, and account status
-    Value:
+    Distance:
       properties:
         amount:
-          type: integer
+          type: number
           title: Amount
-          description: The amount of the value, in the smallest unit of currency
-        currency:
-          $ref: '#/components/schemas/Currency'
-          description: The currency of the value, in ISO 4217 format
+          description: The amount of the distance, in the specified units
+        units:
+          $ref: '#/components/schemas/DistanceUnits'
+          description: The units of the distance
       type: object
       required:
       - amount
-      - currency
-      title: Value
-      description: Represent the value of a drive (excluding toll & parking fees)
-    GetDrivesResponse:
-      properties:
-        results:
-          items:
-            $ref: '#/components/schemas/DriveSchema'
-          type: array
-          title: Results
-          description: Array of drive objects containing comprehensive trip information including locations, distances, values, and metadata
-        has_more:
-          type: boolean
-          title: Has More
-          description: Pagination indicator - true if additional drives exist beyond the current result set within the specified filters and date range
-      type: object
-      required:
-      - results
-      - has_more
-      title: GetDrivesResponse
-    Currency:
-      type: string
-      enum:
-      - USD
-      - CAD
-      - GBP
-      title: Currency
-      description: Different currencies used for drives
+      - units
+      title: Distance
+      description: Represent the distance for a drive
     ValidationError:
       properties:
         loc:
@@ -524,20 +520,6 @@ components:
       - msg
       - type
       title: ValidationError
-    DistanceUnits:
-      type: string
-      enum:
-      - mi
-      - km
-      title: DistanceUnits
-      description: Different distance units used for drives
-    DriveEntry:
-      type: string
-      enum:
-      - manual
-      - automatic
-      title: DriveEntry
-      description: Whether the drive was entered manually or automatically
     Address:
       properties:
         country:
@@ -573,24 +555,42 @@ components:
       type: object
       title: Address
       description: Geographical address information for drive locations with standardized components
-    DistanceWithDiscount:
+    GetDrivesResponse:
       properties:
-        amount:
-          type: number
-          title: Amount
-          description: The amount of the distance, in the specified units
-        units:
-          $ref: '#/components/schemas/DistanceUnits'
-          description: The units of the distance
-        discounted:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Discounted
-          description: The discounted amount of the distance, in the specified units
+        results:
+          items:
+            $ref: '#/components/schemas/DriveSchema'
+          type: array
+          title: Results
+          description: Array of drive objects containing comprehensive trip information including locations, distances, values, and metadata
+        has_more:
+          type: boolean
+          title: Has More
+          description: Pagination indicator - true if additional drives exist beyond the current result set within the specified filters and date range
       type: object
       required:
-      - amount
-      - units
-      title: DistanceWithDiscount
-      description: Represent the distance for a drive, with a discounted value set by the team
+      - results
+      - has_more
+      title: GetDrivesResponse
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    GetDrivesRequestFilterBy:
+      type: string
+      enum:
+      - modified
+      - ended
+      title: GetDrivesRequestFilterBy
+    DriveClassificationFilter:
+      type: string
+      enum:
+      - business
+      - personal
+      - all
+      title: DriveClassificationFilter
