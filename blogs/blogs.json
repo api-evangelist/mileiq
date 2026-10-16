@@ -2,6 +2,13 @@
   "repo": "mileiq",
   "feeds": [
     {
+      "source": "https://mileiq.com/blog",
+      "feed_url": "https://mileiq.com/blog",
+      "title": "",
+      "saved": 0,
+      "method": "none"
+    },
+    {
       "source": "https://developer.mileiq.com/api-reference/getting-started",
       "feed_url": "https://developer.mileiq.com/api-reference/getting-started",
       "title": "",
@@ -10,5 +17,5 @@
     }
   ],
   "post_count": 0,
-  "fetched": "2026-10-03T12:30:02Z"
+  "fetched": "2026-10-10T13:15:00Z"
 }
