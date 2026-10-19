@@ -1,0 +1,12 @@
+{
+ "url": "https://external-api.mileiq.com/openapi.json",
+ "requested_url": "https://external-api.mileiq.com/openapi.json",
+ "status": 200,
+ "content_type": "application/json",
+ "bytes": 33436,
+ "sha256": "81de3763d098c57d1a5aba84303caed5e11a0c48ddb3b4355026707dc7134bc8",
+ "fetched_at": "2026-10-19",
+ "fetched_by": "APIEvangelist-Harvest/1.0 (+https://apievangelist.com)",
+ "match": "byte-identical",
+ "note": "Re-fetched from the provider by verify-openapi-sources.py; the archived file is byte-identical to what the provider serves."
+}
