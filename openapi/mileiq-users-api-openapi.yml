@@ -594,3 +594,9 @@ components:
       - units
       title: DistanceWithDiscount
       description: Represent the distance for a drive, with a discounted value set by the team
+x-provenance:
+  method: harvested
+  publisher: MileIQ
+  source: https://external-api.mileiq.com/openapi.json
+  note: split by refine-openapis from the provider's own published document, verified by fetch (openapi/_original/*.fetch.json);
+    stamped by stamp-openapi-provenance.py (roadmap#793)
